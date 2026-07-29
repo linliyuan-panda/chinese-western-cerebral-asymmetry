@@ -24,7 +24,6 @@ POP.CURVE.LIST <- list(
 
 desired_ticks <- c(0, 1, 2, 18, 35, 80)
 
-# 必须与 AgeTransformed 的变换完全一致
 tick_positions <- log((desired_ticks * 365) + 280)
 
 POP.CURVE.RAW <- do.call(
