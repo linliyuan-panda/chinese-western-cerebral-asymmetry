@@ -10,11 +10,47 @@ source("301.functions.r")
 
 FIT <- readRDS("Share/FIT_Chinese_SA_parsopercularis.rds")
 
-POP.CURVE.LIST <- list(AgeTransformed=seq(log(90),log(365*95),length.out=2^4),sex=c("Female","Male"))
-POP.CURVE.RAW <- do.call( what=expand.grid, args=POP.CURVE.LIST )
+POP.CURVE.LIST <- list(
+  AgeTransformed = seq(
+    log(280),
+    log(365 * 100 + 280),
+    length.out = 2^10
+  ),
+  Sex = factor(
+    c("Female", "Male"),
+    levels = c("Female", "Male")
+  )
+)
 
-CURVE <- Apply.Param(NEWData=POP.CURVE.RAW, FITParam=FIT$param )
+desired_ticks <- c(0, 1, 2, 18, 35, 80)
 
-plot( PRED.m500.pop ~ AgeTransformed, data=CURVE[CURVE$sex=="Female",],type="l")
+# 必须与 AgeTransformed 的变换完全一致
+tick_positions <- log((desired_ticks * 365) + 280)
 
-plot( I(10000*PRED.m500.pop) ~ AgeTransformed, data=CURVE[CURVE$sex=="Female",],type="l")
+POP.CURVE.RAW <- do.call(
+  what = expand.grid,
+  args = POP.CURVE.LIST
+)
+
+CURVE <- Apply.Param(
+  NEWData = POP.CURVE.RAW,
+  FITParam = FIT$param
+)
+
+female_curve <- CURVE[CURVE$Sex == "Female", ]
+female_curve <- female_curve[order(female_curve$AgeTransformed), ]
+
+plot(
+  PRED.m500.pop ~ AgeTransformed,
+  data = female_curve,
+  type = "l",
+  xaxt = "n",
+  xlab = "Age (years)"
+)
+
+axis(
+  side = 1,
+  at = tick_positions,
+  labels = desired_ticks,
+  cex.axis = 1.5
+)
